@@ -30,6 +30,13 @@ milks = {
     'almond': 'A'
 }
 
+sizes = {
+    0: 'Short',
+    1: 'Tall',
+    2: 'Grande',
+    3: 'Venti'
+}
+
 
 class drinkStep:
 
@@ -259,7 +266,7 @@ class Recipe:
 
     def is_modified(self, second_drink):
         this_steps = self.steps[second_drink.size]
-        print("Steps is {} of {}".format(str(type(self.steps)), str(type(this_steps))))
+        #print("Steps is {} of {}".format(str(type(self.steps)), str(type(this_steps))))
         this_steps_cropped = []
         second_steps = []
 
@@ -293,7 +300,7 @@ class Recipe:
 
         for flavor in flavors_original:
             if flavor not in flavors_new:
-                print('{} not present.'.format(flavor))
+                #print('{} not present.'.format(flavor))
                 return -1
 
         for flavor in flavors_new:
@@ -363,7 +370,11 @@ class Recipe:
             elif this_flavor[flavor] != comp_flavor[flavor]:
                 flavor_difference += '{} {} '.format(comp_flavor[flavor], try_get_flavor_abbreviation(flavor))
 
-        return 'Decaf\n[{}]\nShots\n[{}]\nSyrup\n[{}]\nMilk\n[{}]\nCustom\n[{}]\nDrink\n[{}]'.format(decaf, shots_difference, flavor_difference, milk_difference, ' ', self.abbreviation)
+        description = '{} {} {}'.format('Hot', sizes[size], self.name)
+
+
+        return 'Decaf\n[{}]\nShots\n[{}]\nSyrup\n[{}]\nMilk\n[{}]\nCustom\n[{}]\nDrink\n[{}]\n{}'\
+            .format(decaf, shots_difference, flavor_difference, milk_difference, ' ', self.abbreviation, description)
 
 def try_get_flavor_abbreviation(in_flavor):
     flavor = in_flavor.lower()

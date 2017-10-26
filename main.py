@@ -7,15 +7,30 @@ def main():
     load_drinks_to_db()
     parse_drinks_to_list()
     close()
-    parse_drink_input()
+    finished = False
+    while not finished:
+        finished = parse_drink_input()
+
 
 def parse_drink_input():
+    size = None
+    while size is None:
+        in_size = str(input('Please choose a cup size:\nShort (8oz)\nTall (12oz)\nGrande (16oz)\nVenti (24oz)\n>')).lower()
+        if in_size == 'short':
+            size = 0
+        elif in_size == 'tall':
+            size = 1
+        elif in_size == 'grande':
+            size = 2
+        elif in_size == 'venti':
+            size = 3
+        else:
+            print('Size input invalid.  Please enter name of size only.')
     print("Please list the steps for drink creation.\n"
           "Enter in format '2 shots', '3 pumps vanilla', 'pour milk steamed to top'")
     done = False
     drink_steps = []
     while not done:
-        print(len(drink_steps))
         step_input = input(">")
         if step_input == 'done':
             done = True
@@ -25,30 +40,30 @@ def parse_drink_input():
             print("Incorrect format.")
         else:
             drink_steps.append(step)
-    final_drink = drink(drink_steps, 2)
-    #final_drink.print_raw_steps()
+    final_drink = drink(drink_steps, size)
     final_output = final_drink.get_cup_marking()
     best_match = None
     best_score = -1
     for recipe_obj in drinks:
-        print('Trying {}...'.format(recipe_obj.name))
+        #print('Trying {}...'.format(recipe_obj.name))
         score = recipe_obj.is_modified(final_drink)
         if score != -1:
-            print("MATCH: Drink is a modified {} with a score of {}".format(recipe_obj.name, str(score)))
+            #print("MATCH: Drink is a modified {} with a score of {}".format(recipe_obj.name, str(score)))
             if score < best_score or best_score == -1:
                 best_match = recipe_obj
-        else:
-            print("No match.")
+        #else:
+            #print("No match.")
 
     if not best_match is None:
-        final_output = best_match.get_cup_marking(2,final_drink.steps)
+        final_output = best_match.get_cup_marking(size, final_drink.steps)
 
     for recipe_obj in drinks:
         if recipe_obj.is_identical(final_drink):
-            print("MATCH: Drink is identical to {}".format(recipe_obj.name))
-            final_output = recipe_obj.get_cup_marking(2,final_drink.steps)
+            #print("MATCH: Drink is identical to {}".format(recipe_obj.name))
+            final_output = recipe_obj.get_cup_marking(size, final_drink.steps)
             break
     print(final_output)
+    return input("Press enter to continue, or type 'exit' to finish.").lower().replace("'", '') == 'exit'
 
 
 def load_simple_drinks():
