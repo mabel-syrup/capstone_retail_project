@@ -25,7 +25,7 @@ milks = {
     'whole': 'W',
     'breve': 'H+H',
     'half&half': 'H+H',
-    'cocnut': 'Co',
+    'coconut': 'Co',
     'soy': 'S',
     'almond': 'A'
 }
@@ -116,7 +116,12 @@ class drinkStep:
                 self.error = True
                 return
             else:
-                self.flavor = instruction[2]
+                if instruction[2] not in flavors:
+                    self.error = True
+                    print('{} is not an available flavor pump, sorry!'.format(instruction[2]))
+                    return
+                else:
+                    self.flavor = instruction[2]
         elif i_type[:5] == 'scoop':
             self.inclusion = True
             if len(instruction) < 3:
@@ -129,8 +134,9 @@ class drinkStep:
     def parse_pour(self,step):
         height_remainder = []
         if len(step) < 4:
-            self.error = True
-            return
+            # Attempt to fix it.
+            step.append('to')
+            step.append('top')
         if step[1] == 'milk':
             self.milk = True
             if step[2] == 'steamed':
@@ -148,6 +154,27 @@ class drinkStep:
                 else:
                     self.flavor = step[2]
                     height_remainder = step[3:]
+        elif step[1] == 'steamed':
+            self.hot = True
+            #is some kind of milk
+            if step[2] == 'milk' or is_milk_type(step[2]):
+                self.milk = True
+                if is_milk_type(step[2]):
+                    self.flavor = step[2]
+                #pour steamed milk coconut
+                if is_milk_type(step[3]):
+                    self.flavor = step[3]
+                    height_remainder = step[4:]
+                elif step[3] == 'milk':
+                    height_remainder = step[4:]
+                elif step[3] == 'to':
+                    self.flavor = '2%'
+                    height_remainder = step[3:]
+                else:
+                    self.error = True
+                    return
+
+
         elif step[1] == 'coffee':
             self.coffee = True
             if step[2] == 'light' or step[2][:5] == 'blond':
@@ -180,6 +207,13 @@ class drinkStep:
                 self.pour_to = 3
             else:
                 self.error = True
+
+
+def is_milk_type(in_string):
+    if in_string.lower() in milks:
+        return True
+    else:
+        return False
 
 
 class drink:
@@ -334,7 +368,7 @@ class Recipe:
 
         comp_shots = 0
         comp_flavor = {}
-        comp_decaf = True
+        comp_caf = False
         comp_milk = ' '
 
 
@@ -350,15 +384,15 @@ class Recipe:
             if step.shot:
                 comp_shots += step.amount
                 if not step.decaf:
-                    comp_decaf = False
+                    comp_caf = True
             elif step.pump:
                 comp_flavor[step.flavor] = step.amount
             elif step.coffee and step.flavor != 'decaf':
-                comp_decaf = False
+                comp_caf = True
             elif step.milk:
                 comp_milk = step.flavor
 
-        if comp_decaf:
+        if not comp_caf:
             decaf = 'X'
 
         if this_shots != comp_shots:

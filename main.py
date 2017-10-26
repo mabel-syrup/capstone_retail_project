@@ -31,7 +31,7 @@ def parse_drink_input():
         else:
             print('Size input invalid.  Please enter name of size only.')
     print("Please list the steps for drink creation.\n"
-          "Enter in format '2 shots', '3 pumps vanilla', 'pour milk steamed to top'")
+          "Enter in format '2 shots', '3 pumps vanilla', 'pour steamed coconut milk to top'")
     # User inputs the steps
     done = False
     drink_steps = []
@@ -40,11 +40,14 @@ def parse_drink_input():
         if step_input == 'done':
             done = True
             continue
-        step = drinkStep(step_input)
-        if step.error:
+        try:
+            step = drinkStep(step_input)
+            if step.error:
+                print("Incorrect format.")
+            else:
+                drink_steps.append(step)
+        except IndexError:
             print("Incorrect format.")
-        else:
-            drink_steps.append(step)
     # Turn the specified steps into a drink object
     final_drink = drink(drink_steps, size)
     final_output = final_drink.get_cup_marking()
@@ -106,11 +109,11 @@ def load_simple_drinks():
 
     # chai
     print('Creating chai.')
-    drinks.append(create_recipe({0: ['2 pump chai', 'pour milk steamed to top', '1 shot'],
-                                 1: ['3 pump chai', 'pour milk steamed to top', '1 shot'],
-                                 2: ['4 pump chai', 'pour milk steamed to top', '2 shot'],
-                                 3: ['5 pump chai', 'pour milk steamed to top', '2 shot'],
-                                 4: ['6 pump chai', 'pour milk steamed to top', '3 shot']}, 'chai',
+    drinks.append(create_recipe({0: ['2 pump chai', 'pour milk steamed to top'],
+                                 1: ['3 pump chai', 'pour milk steamed to top'],
+                                 2: ['4 pump chai', 'pour milk steamed to top'],
+                                 3: ['5 pump chai', 'pour milk steamed to top'],
+                                 4: ['6 pump chai', 'pour milk steamed to top']}, 'chai',
                                 'CH', True))
 
     #macchiato
@@ -219,6 +222,12 @@ def load_drinks_to_db():
                                  3: ['pour coffee medium to top']
                               }
                )
+    add_recipe('Misto', 'Misto', {0: ['pour coffee medium to mid', 'pour steamed milk to top'],
+                                 1: ['pour coffee medium to mid', 'pour steamed milk to top'],
+                                 2: ['pour coffee medium to mid', 'pour steamed milk to top'],
+                                 3: ['pour coffee medium to mid', 'pour steamed milk to top']
+                              }
+               )
     add_recipe('Light Roast Coffee', 'BLND', {0: ['pour coffee light to top'],
                                  1: ['pour coffee light to top'],
                                  2: ['pour coffee light to top'],
@@ -255,11 +264,17 @@ def load_drinks_to_db():
                                               3: ['5 pump toffeenut', '5 pump mocha', '2 shot', 'pour milk steamed to top']
                                               }
                )
-    add_recipe('Chai Tea Latte', 'CH', {0: ['2 pump chai', '1 shot', 'pour milk steamed to top'],
-                              1: ['3 pump chai', '1 shot', 'pour milk steamed to top'],
-                              2: ['4 pump chai', '2 shot', 'pour milk steamed to top'],
-                              3: ['5 pump chai', '2 shot', 'pour milk steamed to top']
+    add_recipe('Chai Tea Latte', 'CH', {0: ['2 pump chai', 'pour milk steamed to top'],
+                              1: ['3 pump chai', 'pour milk steamed to top'],
+                              2: ['4 pump chai', 'pour milk steamed to top'],
+                              3: ['5 pump chai', 'pour milk steamed to top']
                               }
+               )
+    add_recipe('Dirty Chai', 'CH', {0: ['2 pump chai', '1 shot', 'pour milk steamed to top'],
+                                        1: ['3 pump chai', '1 shot', 'pour milk steamed to top'],
+                                        2: ['4 pump chai', '2 shot', 'pour milk steamed to top'],
+                                        3: ['5 pump chai', '2 shot', 'pour milk steamed to top']
+                                        }
                )
     add_recipe('Lightly Sweet Chai Tea Latte', 'LSCH', {0: ['2 pump lschai', '1 shot', 'pour milk steamed to top'],
                               1: ['3 pump lschai', '1 shot', 'pour milk steamed to top'],
