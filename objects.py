@@ -325,6 +325,7 @@ class Recipe:
         flavor_difference = ' '
         milk_difference = ' '
         custom_difference = ' '
+        modifications = 0
 
         this_shots = 0
         this_flavor = {}
@@ -362,19 +363,46 @@ class Recipe:
 
         if this_shots != comp_shots:
             shots_difference = str(comp_shots)
+            modifications += 1
         if this_milk != comp_milk:
             milk_difference = try_get_milk_abbreviation(comp_milk)
+            modifications += 1
+        flavors = []
         for flavor in comp_flavor:
             if flavor not in this_flavor:
                 flavor_difference += '{} {} '.format(comp_flavor[flavor], try_get_flavor_abbreviation(flavor))
+                flavors.append('{} pump{} of {}'.format(comp_flavor[flavor], get_plural(comp_flavor[flavor]), flavor))
+                modifications += 1
             elif this_flavor[flavor] != comp_flavor[flavor]:
                 flavor_difference += '{} {} '.format(comp_flavor[flavor], try_get_flavor_abbreviation(flavor))
+                flavors.append('{} pump{} of {}'.format(comp_flavor[flavor], get_plural(comp_flavor[flavor]), flavor))
+                modifications += 1
 
         description = '{} {} {}'.format('Hot', sizes[size], self.name)
 
+        parsed_modifications = 0
+
+        if modifications > 0:
+            description += ' with '
+        if milk_difference != ' ':
+            parsed_modifications += 1
+            description += milk_difference + " milk" + get_english_list_ending(modifications, parsed_modifications)
+        if flavor_difference != ' ':
+            for flavor in flavors:
+                parsed_modifications += 1
+                description += flavor + get_english_list_ending(modifications, parsed_modifications)
+        if shots_difference != ' ':
+            parsed_modifications += 1
+            shot_shift = comp_shots - this_shots
+            if shot_shift > 0:
+                shot_readout = "{} extra shot{}".format(shot_shift, get_plural(shot_shift))
+            else:
+                shot_readout = '{} fewer shot{}'.format(abs(shot_shift), get_plural(shot_shift))
+            description += shot_readout + get_english_list_ending(modifications, parsed_modifications)
 
         return 'Decaf\n[{}]\nShots\n[{}]\nSyrup\n[{}]\nMilk\n[{}]\nCustom\n[{}]\nDrink\n[{}]\n{}'\
             .format(decaf, shots_difference, flavor_difference, milk_difference, ' ', self.abbreviation, description)
+
 
 def try_get_flavor_abbreviation(in_flavor):
     flavor = in_flavor.lower()
@@ -382,8 +410,27 @@ def try_get_flavor_abbreviation(in_flavor):
         return flavor
     return flavors[flavor]
 
+
 def try_get_milk_abbreviation(in_milk):
     milk = in_milk.lower()
     if milk not in milks:
         return milk
     return milks[milk]
+
+
+def get_english_list_ending(max_count,count):
+    if count == max_count:
+        return ''
+    if count == max_count - 1:
+        if max_count < 3:
+            return ' and '
+        else:
+            return ', and '
+    elif count < max_count - 1:
+        return ', '
+
+def get_plural(count,ending='s'):
+    if abs(count) > 1:
+        return ending
+    else:
+        return ''

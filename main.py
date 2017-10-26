@@ -4,15 +4,19 @@ from drinks_database import add_recipe, get_drink_names, close, make_db_if_delet
 drinks = []
 
 def main():
+    # Fills the database with official drinks
     load_drinks_to_db()
+    # Converts the database drinks to recipe objects
     parse_drinks_to_list()
     close()
+    # Program run loop
     finished = False
     while not finished:
         finished = parse_drink_input()
 
 
 def parse_drink_input():
+    # User specifies a size
     size = None
     while size is None:
         in_size = str(input('Please choose a cup size:\nShort (8oz)\nTall (12oz)\nGrande (16oz)\nVenti (24oz)\n>')).lower()
@@ -28,6 +32,7 @@ def parse_drink_input():
             print('Size input invalid.  Please enter name of size only.')
     print("Please list the steps for drink creation.\n"
           "Enter in format '2 shots', '3 pumps vanilla', 'pour milk steamed to top'")
+    # User inputs the steps
     done = False
     drink_steps = []
     while not done:
@@ -40,10 +45,12 @@ def parse_drink_input():
             print("Incorrect format.")
         else:
             drink_steps.append(step)
+    # Turn the specified steps into a drink object
     final_drink = drink(drink_steps, size)
     final_output = final_drink.get_cup_marking()
     best_match = None
     best_score = -1
+    # Loop through every recipe to find the closest drink
     for recipe_obj in drinks:
         #print('Trying {}...'.format(recipe_obj.name))
         score = recipe_obj.is_modified(final_drink)
@@ -57,11 +64,13 @@ def parse_drink_input():
     if not best_match is None:
         final_output = best_match.get_cup_marking(size, final_drink.steps)
 
+    # Loop through every recipe to find an exact match
     for recipe_obj in drinks:
         if recipe_obj.is_identical(final_drink):
             #print("MATCH: Drink is identical to {}".format(recipe_obj.name))
             final_output = recipe_obj.get_cup_marking(size, final_drink.steps)
             break
+    # Display the final cup marking readout.
     print(final_output)
     return input("Press enter to continue, or type 'exit' to finish.").lower().replace("'", '') == 'exit'
 
@@ -157,7 +166,9 @@ def load_simple_drinks():
     print("Coffee = Macchiato: " + str(str(drinks[0].is_identical(drinks[4].drink(2)))))
 
 def parse_drinks_to_list():
+    # Loop through every recipe in the database.
     for drink_tuple in get_drink_names():
+        # Get data for the recipe, such as abbreviation and steps
         drink_name = drink_tuple[0]
         drink_abbreviation = get_drink_abbreviation(drink_name)
         steps = {}
@@ -165,7 +176,9 @@ def parse_drinks_to_list():
         steps[1] = get_drink_recipe(drink_name, 'Tall')
         steps[2] = get_drink_recipe(drink_name, 'Grande')
         steps[3] = get_drink_recipe(drink_name, 'Venti')
+        # Parse all that data into a recipe
         drink_obj = create_recipe(steps, drink_name, drink_abbreviation)
+        # Add it to the list
         drinks.append(drink_obj)
 
 
