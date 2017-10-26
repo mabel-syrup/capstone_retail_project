@@ -386,7 +386,7 @@ class Recipe:
             description += ' with '
         if milk_difference != ' ':
             parsed_modifications += 1
-            description += milk_difference + " milk" + get_english_list_ending(modifications, parsed_modifications)
+            description += comp_milk + " milk" + get_english_list_ending(modifications, parsed_modifications)
         if flavor_difference != ' ':
             for flavor in flavors:
                 parsed_modifications += 1
